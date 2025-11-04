@@ -9,7 +9,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 999000;
 }
 
 .header-section .nav-bar {
@@ -78,6 +78,9 @@
   background: #e68900;
 }
 
+
+
+
 .footer {
   width: 100%;
   padding: 20px;
@@ -113,12 +116,7 @@
 .animate-slideUp {
   animation: slideUp 0.3s ease-out;
 }
-.food-category-section {
-  position: sticky;
-  top: 80px;
-  background: #fff;
 
-}
 
 .category-slider .slick-slide {
   display: inline-block !important;

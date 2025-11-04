@@ -4,21 +4,113 @@ import IndexPage from "../pages/Home/IndexPage";
 import ViewCart from "../pages/Cart/ViewCart";
 import OrderSummary from "../pages/Summary/OrderSummary";
 import Order from "../pages/Order/MyOrders";
-import OrderConfirmation from "../pages/Order/OrderConfirmation";
+import OrderConfirmation from "../pages/Confirmation/OrderConfirmation";
 import Profile from "../pages/Profile/Profile";
 import OrderDetails from "../pages/Order/OrderDetails";
-
+import Payment from "../pages/Payement/Payment";
+import UpdateOrderPayment from "../pages/Payement/UpdateOrderPayment";
+import LandingPage from "../pages/Home/LandingPage";
+import FeedbackPage from "../pages/Feedback/FeedbackPage";
+import ThankYouPage from "../pages/Feedback/ThankYouPage";
+import ProtectedRoute from "./ProtectedRoute";
 function AppRouter() {
   return (
-    <Router >
+    //basename="/kuldeep/digital-menu" in Router parent paste
+    <Router basename="/hotel/">
       <Routes>
-        <Route path="/" element={<IndexPage />} />
-        <Route path="/cart" element={<ViewCart />} />
-        <Route path="/ordersummary" element={<OrderSummary />} />
-        <Route path="/ordersconfirmation" element={<OrderConfirmation />} />
-        <Route path="/orders" element={<Order />} />
-        <Route path="/orders/:orderId" element={<OrderDetails />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/:endpoint" element={<LandingPage />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="menu"
+          element={
+            <ProtectedRoute>
+              <IndexPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="feedback"
+          element={
+            <ProtectedRoute>
+              <FeedbackPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="thank-you"
+          element={
+            <ProtectedRoute>
+              <ThankYouPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="cart"
+          element={
+            <ProtectedRoute>
+              <ViewCart />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="ordersummary"
+          element={
+            <ProtectedRoute>
+              <OrderSummary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="ordersconfirmation"
+          element={
+            <ProtectedRoute>
+              <OrderConfirmation />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="payment"
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="orders"
+          element={
+            <ProtectedRoute>
+              <Order />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="orders/:orderId"
+          element={
+            <ProtectedRoute>
+              <OrderDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="update-order-payment/:orderId"
+          element={
+            <ProtectedRoute>
+              <UpdateOrderPayment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+       
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

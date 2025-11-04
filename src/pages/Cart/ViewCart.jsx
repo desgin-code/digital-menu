@@ -11,6 +11,7 @@ import {
   removeFromCart,
   decreaseItem,
 } from "../../redux/features/cart/cartFoodSlice";
+import CurrencySymbol from "../../components/Currency/CurrencySymbol";
 
 export default function ViewCart() {
   const navigate = useNavigate();
@@ -63,42 +64,37 @@ export default function ViewCart() {
           <h2 className="text-2xl font-bold mb-6 text-[#5c471c]">🛒 My Cart</h2>
           {cartItems && cartItems.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
-                    className="flex flex-row flex-col-350 cart-item bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden cursor-pointer"
+                    className="flex flex-col md:flex-row cart-item bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden cursor-pointer"
                   >
-                    <img
-                      src={item.img}
-                      alt={item.title}
-                      className="w-32 object-cover"
-                    />
-                    <div className="flex gap-1 item-price">
-                      <div className="flex flex-col p-4 flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="text-lg font-semibold">
-                            {item.title}
-                          </h3>
-                        </div>
+                    {/* Image */}
+                    <div className="flex-shrink-0 w-full md:w-24 h-24 md:h-24 overflow-hidden rounded-xl border border-gray-200 m-4 md:m-2">
+                      <img
+                        src={item.img}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                      />
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex flex-1 flex-col justify-between p-4 gap-2">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {item.title}
+                        </h3>
                         <p className="text-sm text-gray-600">{item.desc}</p>
-                        <div className="mt-auto">
-                          <p className="text-[#e68900] font-bold">
-                            ₹{item.price}
-                          </p>
-                          {item.oldPrice && (
-                            <p className="text-gray-400 text-sm line-through">
-                              ₹{item.oldPrice}
-                            </p>
-                          )}
-                        </div>
                       </div>
-                      <div className="flex flex-col justify-center p-3">
-                        <span className="bg-[#5c471c] h-6 text-white text-xs px-2 py-1 rounded mb-2 text-center">
-                          {item.discount}
-                        </span>
-                        <div className="flex items-center justify-center gap-2 border-2 border-[#e68900] h-9 rounded-full px-3">
+
+                      <div className="flex justify-between items-center mt-2">
+                        <p className="text-[#e68900] font-bold text-lg">
+                          <CurrencySymbol/>{item.price}
+                        </p>
+
+                        <div className="flex items-center gap-2 border-2 border-[#e68900] h-9 rounded-full px-3">
                           <button
                             className="text-red-600 text-lg font-bold"
                             onClick={(e) => {
@@ -136,13 +132,14 @@ export default function ViewCart() {
                   </div>
                 ))}
               </div>
+
               <div className="sticky bottom-0 bg-white shadow-lg p-4 flex flex-wrap justify-between items-center rounded-lg gap-3">
                 <h3 className="text-xl font-bold text-[#5c471c]">
-                  Subtotal: ₹{subTotals}
+                  Subtotal:  <CurrencySymbol/> {subTotals}
                 </h3>
 
                 <div className="flex gap-4">
-                  <Link to="/">
+                  <Link to="/menu">
                     <button
                       className="px-6 py-2 rounded-xl border-2 border-[#928d87] text-[#444] font-semibold 
              bg-gradient-to-r from-white to-gray-50 
@@ -171,7 +168,7 @@ export default function ViewCart() {
               </p>
 
               <Link
-                to="/"
+                to="/menu"
                 className="mt-3 px-6 py-2 bg-[#e68900] text-white rounded-xl font-semibold 
                hover:bg-[#cc7700] transition-all duration-300"
               >

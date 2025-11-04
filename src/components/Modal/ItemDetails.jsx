@@ -1,3 +1,5 @@
+import CurrencySymbol from "../Currency/CurrencySymbol";
+
 export default function ItemDetails({
   item,
   onClose,
@@ -9,11 +11,11 @@ export default function ItemDetails({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-end z-50"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-end z-50 pb-[60px]  "
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-t-2xl shadow-lg w-full p-6 relative max-h-[90vh] overflow-y-auto transition-transform transform animate-slideUp"
+        className="bg-white rounded-t-2xl shadow-lg w-full p-6 relative max-h-[90vh]  overflow-y-auto transition-transform transform animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -24,34 +26,32 @@ export default function ItemDetails({
           ×
         </button>
 
-        {/* Content */}
-        <div className="flex flex-col md:flex-row gap-4 mt-4">
+        {/* Main item details */}
+        <div className="flex flex-col md:flex-row gap-4 mt-4 ">
           <img
             src={item.img}
             alt={item.title}
-            className="w-40 h-40 object-cover rounded-lg"
+            className="w-20 h-20 object-cover rounded-lg shadow-md"
           />
 
-          <div className="flex flex-1 items-start">
+          <div className="flex flex-1 items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-2">{item.title}</h2>
-              <p className="text-gray-600 mb-4">{item.desc}</p>
-              <p className="text-[#e68900] text-xl font-bold">₹ {item.price}</p>
+              <h2 className="text-2xl font-bold mb-1">{item.title}</h2>
+              <p className="text-gray-600 mb-3">{item.desc}</p>
+              <p className="text-[#e68900] text-xl font-bold"> <CurrencySymbol/>  {item.price}</p>
               {item.oldPrice && (
                 <p className="text-gray-400 text-sm line-through">
-                 ₹ {item.oldPrice}
+                  <CurrencySymbol/> {item.oldPrice}
                 </p>
               )}
             </div>
 
-            <div className="flex items-center ms-20 gap-2">
-              <span className="bg-[#5c471c] text-white text-xs px-2 py-1 rounded">
-                {item.discount}
-              </span>
+            {/* Add to cart */}
+            <div className="flex flex-col justify-center items-center">
               {cartItem ? (
-                <div className="flex items-center border-2 border-[#e68900] h-8 m-2 rounded-[15px] px-2 ">
+                <div className="flex items-center border-2 border-[#e68900] h-8 rounded-[15px] px-3">
                   <button
-                    className="text-[red] text-[18px] font-bold hover:text-red-500"
+                    className="text-red-500 font-bold text-lg"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDecrease(item);
@@ -59,13 +59,11 @@ export default function ItemDetails({
                   >
                     -
                   </button>
-
-                  <span className="mx-3 font-semibold">
+                  <span className="mx-2 font-semibold">
                     {cartItem.quantity}
                   </span>
-
                   <button
-                    className="text-[#e68900] text-[18px] font-bold hover:text-yellow-600"
+                    className="text-[#e68900] font-bold text-lg"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddToCart(item);
@@ -76,7 +74,7 @@ export default function ItemDetails({
                 </div>
               ) : (
                 <button
-                  className="bg-[#e68900] text-white w-10 h-10 flex items-center justify-center m-2 rounded-lg text-lg hover:bg-[#cc7700] transition"
+                  className="bg-[#e68900] text-white w-10 h-10 flex items-center justify-center rounded-lg text-lg hover:bg-[#cc7700] transition"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleAddToCart(item);
@@ -88,6 +86,90 @@ export default function ItemDetails({
             </div>
           </div>
         </div>
+
+        {/* More Options */}
+        {item.foodOptions && item.foodOptions.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4 border-b-2 border-[#e68900] inline-block pb-1">
+              More Options
+            </h3>
+
+            <div className="space-y-4 mb-10">
+              {item.foodOptions.map((opt) => {
+                const optCartItem = items.find((i) => i.id === opt.id);
+                return (
+                  <div
+                    key={opt.id}
+                    className="flex items-center justify-between bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition duration-300"
+                  >
+                    {/* Left: Image + Info */}
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={opt.img}
+                        alt={opt.title}
+                        className="w-12 h-12 object-cover rounded-lg shadow-sm"
+                      />
+                      <div className="flex flex-col">
+                        <h4 className="font-semibold text-gray-800 text-base md:text-lg">
+                          {opt.title}
+                        </h4>
+                        <div className="flex gap-3 items-center mt-1">
+                          <p className="text-[#e68900] font-bold">
+                             <CurrencySymbol/>  {opt.price}
+                          </p>
+                          {/* {opt.quantity && (
+                            <p className="text-gray-500 text-sm">
+                              Qty {opt.quantity}
+                            </p>
+                          )} */}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Add to Cart */}
+                    <div>
+                      {optCartItem ? (
+                        <div className="flex items-center border-2 border-[#e68900] rounded-full px-3 py-1 bg-white shadow-sm">
+                          <button
+                            className="text-red-500 font-bold text-lg px-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDecrease(opt);
+                            }}
+                          >
+                            -
+                          </button>
+                          <span className="mx-2 font-semibold">
+                            {optCartItem.quantity}
+                          </span>
+                          <button
+                            className="text-[#e68900] font-bold text-lg px-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCart(opt);
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="bg-[#e68900] text-white w-10 h-10 flex items-center justify-center rounded-lg text-lg hover:bg-[#cc7700] transition-shadow shadow-md"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(opt);
+                          }}
+                        >
+                          +
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

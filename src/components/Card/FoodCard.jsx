@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ItemDetails from "../../components/Modal/ItemDetails";
 import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import CurrencySymbol from "../Currency/CurrencySymbol";
 
 export default function FoodCard({ cat }) {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -25,10 +26,11 @@ export default function FoodCard({ cat }) {
   const handleDecrease = (item) => {
     dispatch(decreaseItem(item));
     setCartMessage(`${totalItems - 1} items  in cart!`);
+    setTimeout(() => setCartMessage(null), 3000);
   };
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {cat.items.map((item) => {
           const cartItem = items.find((i) => i.id === item.id);
 
@@ -36,42 +38,33 @@ export default function FoodCard({ cat }) {
             <div
               key={item.id}
               onClick={() => setSelectedItem(item)}
-              className="flex flex-row  bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden cursor-pointer"
+              className="flex items-center bg-white rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer p-3"
             >
-              <img
-                src={item.img}
-                alt={item.title}
-                className="w-32 object-cover"
-              />
-
-              <div className="flex flex-col p-4 flex-1">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-lg font-semibold">{item.title}</h3>
-                </div>
-
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {item.desc}
-                </p>
-
-                <div className="mt-auto">
-                  <p className="text-[#e68900] font-bold">₹ {item.price}</p>
-                  {item.oldPrice && (
-                    <p className="text-gray-400 text-sm line-through">
-                      ₹ {item.oldPrice}
-                    </p>
-                  )}
-                </div>
+              {/* Image */}
+              <div className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 overflow-hidden rounded-xl border border-gray-200">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                />
               </div>
 
-              <div className="flex md:flex-row flex-col">
-                <span className="bg-[#5c471c] h-6 text-white text-xs px-2 py-1 rounded m-3">
-                  {item.discount}
-                </span>
+              {/* Text Content */}
+              <div className="flex-1 ml-3">
+                <h3 className="text-md md:text-lg font-semibold text-gray-800 leading-tight">
+                  {item.title}
+                </h3>
+                <p className="text-[#e68900] font-bold mt-1 text-sm md:text-base">
+                  <CurrencySymbol/> {item.price}
+                </p>
+              </div>
 
+              {/* Add to Cart */}
+              <div className="ml-auto">
                 {cartItem ? (
-                  <div className="flex items-center border-2 border-[#e68900] h-8 m-2 rounded-[15px] px-2 ">
+                  <div className="flex items-center border-2 border-[#e68900] rounded-full px-2 py-1">
                     <button
-                      className="text-[red] text-[18px] font-bold hover:text-red-500"
+                      className="text-red-500 font-bold px-2 hover:text-red-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDecrease(item);
@@ -79,13 +72,11 @@ export default function FoodCard({ cat }) {
                     >
                       -
                     </button>
-
-                    <span className="mx-3 font-semibold">
+                    <span className="mx-2 font-semibold">
                       {cartItem.quantity}
                     </span>
-
                     <button
-                      className="text-[#e68900] text-[18px] font-bold hover:text-yellow-600"
+                      className="text-[#e68900] font-bold px-2 hover:text-yellow-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAddToCart(item);
@@ -96,7 +87,7 @@ export default function FoodCard({ cat }) {
                   </div>
                 ) : (
                   <button
-                    className="bg-[#e68900] text-white w-10 h-10 flex items-center justify-center m-2 rounded-lg text-lg hover:bg-[#cc7700] transition"
+                    className="bg-[#e68900] text-white w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full hover:bg-[#cc7700] transition"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddToCart(item);

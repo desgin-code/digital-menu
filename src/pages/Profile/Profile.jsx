@@ -13,7 +13,7 @@ export default function Profile() {
 
   const handleLogout = () => {
     dispatch(logoutUser());
-    navigate("/");
+    navigate("/menu");
   };
 
   return (

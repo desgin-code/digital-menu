@@ -33,9 +33,14 @@ const bookOrderSlice = createSlice({
         total: action.payload.total,
         orderTime: new Date().toISOString(),
         status: "Processing",
+        payment: action.payload.payment,
+        paymentMethod: action.payload.paymentMethod,
+        paymentId: action.payload.paymentId,
       };
 
       state.orders.push(newOrder);
+
+      console.log(newOrder);
 
       localStorage.setItem("orders", JSON.stringify(state.orders));
     },
@@ -53,8 +58,20 @@ const bookOrderSlice = createSlice({
       state.orders = [];
       localStorage.removeItem("orders");
     },
+
+    updateOrderPayment: (state, action) => {
+      const orderId = action.payload.orderId;
+      const order = state.orders.find((o) => o.id === orderId);
+      if (order) {
+        order.payment = action.payload.payment;
+        order.paymentMethod = action.payload.paymentMethod;
+        order.paymentId = action.payload.paymentId;
+        localStorage.setItem("orders", JSON.stringify(state.orders));
+      }
+    },
   },
 });
 
-export const { bookOrder, clearOrders, cancelOrder } = bookOrderSlice.actions;
+export const { bookOrder, clearOrders, cancelOrder, updateOrderPayment } =
+  bookOrderSlice.actions;
 export default bookOrderSlice.reducer;

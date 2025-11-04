@@ -4,7 +4,11 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../redux/features/login/loginUserSlice";
 
-export default function ShowLogin({ setShowLogin, setIsLoggedIn }) {
+export default function ShowLogin({
+  setShowLogin,
+  setIsLoggedIn,
+  purpose = "checkout",
+}) {
   const [step, setStep] = useState("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -27,8 +31,13 @@ export default function ShowLogin({ setShowLogin, setIsLoggedIn }) {
       setErrorMsg(null);
       setIsLoggedIn(true);
       setShowLogin(false);
-      dispatch(loginUser({phone}));
-      navigate("/ordersummary");
+      dispatch(loginUser({ phone }));
+
+      if (purpose === "login") {
+        window.location.reload();
+      } else {
+        navigate("/ordersummary");
+      }
     } else {
       setErrorMsg("Invalid OTP");
     }

@@ -5,12 +5,16 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { bookOrder } from "../../redux/features/order/bookOrderSlice";
 import { clearCart } from "../../redux/features/cart/cartFoodSlice";
+import CurrencySymbol from "../../components/Currency/CurrencySymbol";
 
 export default function OrderSummary() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const { phone } = useSelector((state) => state.login.user);
+  const hotel = useSelector((state) => state.hotel.hotel);
+
+  const hotel_id = hotel?.id || null;
 
   const subTotal = cartItems.reduce(
     (acc, item) => acc + item.price * (item.quantity || 1),
@@ -19,12 +23,48 @@ export default function OrderSummary() {
   const tax = (subTotal * 0.05).toFixed(2);
   const total = (subTotal + Number(tax)).toFixed(2);
 
-  const handleOrderNow = () => {
-    dispatch(
-      bookOrder({ user: phone, items: cartItems, subTotal, tax, total })
-    );
-    dispatch(clearCart());
-    navigate("/ordersconfirmation");
+  const handlePayNow = async () => {
+    navigate("/payment");
+  };
+
+  const handlePayLater = async () => {
+    const orderData = {
+      hotel_id: hotel_id,
+      user: phone,
+      items: cartItems,
+      subtotal: subTotal,
+      tax: tax,
+      total: total,
+      payment: "pending",
+      paymentMethod: "pay Later",
+    };
+
+    try {
+      const response = await fetch(
+        "https://testing-demo.com/jaichand/digital-menu/api/hotel/book-order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.status) {
+        console.log("Order placed:", data.data);
+        dispatch(clearCart());
+        navigate("/ordersconfirmation");
+      } else {
+        console.error("Failed to place order:", data.error);
+        alert("Failed to place order. Please try again!");
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      alert("Something went wrong while placing the order!");
+    }
   };
 
   return (
@@ -53,13 +93,13 @@ export default function OrderSummary() {
                           {item.title}
                         </h3>
                         <p className="text-gray-600 text-sm mt-1">
-                          Price: ₹{item.price} × {item.quantity || 1}
+                          Price: <CurrencySymbol/>{item.price} × {item.quantity || 1}
                         </p>
                       </div>
                     </div>
                     <div className="mt-2 sm:mt-0 text-right">
                       <p className="text-[#e68900] font-bold text-lg">
-                        ₹{(item.price * (item.quantity || 1)).toFixed(2)}
+                        <CurrencySymbol/>{(item.price * (item.quantity || 1)).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -71,35 +111,35 @@ export default function OrderSummary() {
                   <div className="flex justify-between w-full sm:w-auto">
                     <span className="font-medium text-gray-700">Subtotal:</span>
                     <span className="font-semibold text-gray-800">
-                      ₹{subTotal.toFixed(2)}
+                      <CurrencySymbol/>{subTotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between w-full sm:w-auto">
                     <span className="font-medium text-gray-700 ">
                       Tax (5%):
                     </span>
-                    <span className="font-semibold text-gray-800 ">₹{tax}</span>
+                    <span className="font-semibold text-gray-800 "><CurrencySymbol/> {tax}</span>
                   </div>
                   <div className="flex justify-between w-full sm:w-auto">
                     <span className="font-medium text-gray-700">Total:</span>
                     <span className="font-bold text-[#5c471c] text-lg">
-                      ₹{total}
+                      <CurrencySymbol/> {total}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-3 sm:mt-0">
-                  {/* <button
+                  <button
                     onClick={handlePayLater}
                     className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-2xl transition"
                   >
                     Pay Later
-                  </button> */}
+                  </button>
                   <button
-                    onClick={handleOrderNow}
+                    onClick={handlePayNow}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#e68900] to-[#f2b100] hover:from-[#cc7700] hover:to-[#e6a100] text-white font-semibold py-3 px-6 rounded-2xl transition shadow-lg"
                   >
-                    Order Now
+                    Pay Now
                   </button>
                 </div>
               </div>
@@ -108,7 +148,7 @@ export default function OrderSummary() {
             <div className="text-center py-32">
               <p className="text-gray-600 text-lg mb-4">Your cart is empty</p>
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/menu")}
                 className="px-6 py-3 bg-[#e68900] text-white rounded-2xl font-semibold hover:bg-[#cc7700] transition"
               >
                 Add Items

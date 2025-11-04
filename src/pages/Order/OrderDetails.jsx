@@ -2,6 +2,8 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../../layouts/Header/Header";
 import Layout from "../../layouts/Layout";
+import { formatDate } from "../../utils/formateDate";
+import CurrencySymbol from "../../components/Currency/CurrencySymbol";
 
 export default function OrderDetails() {
   const location = useLocation();
@@ -38,44 +40,67 @@ export default function OrderDetails() {
           </h2>
 
           {/* Order Info */}
-          <div className="space-y-2 text-gray-700">
-            <p>
-              <span className="font-semibold">Order ID:</span> {order.id}
-            </p>
-            <p>
-              <span className="font-semibold">Date:</span>{" "}
-              {order.date || order.orderTime}
-            </p>
-            <p>
-              <span className="font-semibold">Status:</span>{" "}
+          <div className="space-y-2 text-gray-700 flex justify-between items:center">
+            <div className="">
+              <p>
+                <span className="font-semibold">Order ID:</span>{" "}
+                {order.order_no}
+              </p>
+              <p>
+                <span className="font-semibold">Date:</span>{" "}
+                {formatDate(order.created_at)}
+              </p>
+
+              <p>
+                <span className="font-semibold">Payment:</span>{" "}
+                <span
+                  className={` text-xs font-semibold ${
+                    order?.payment === "Paid"
+                      ? " text-green-600"
+                      : order.payment === "Pending"
+                      ? " text-yellow-600"
+                      : " text-red-600"
+                  }`}
+                >
+                  {order?.payment_status
+                    ? order.payment_status.charAt(0).toUpperCase() +
+                      order.payment_status.slice(1)
+                    : ""}
+                </span>
+              </p>
+            </div>
+            <div>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  order.status === "Delivered"
+                  order?.order_status === "delivered"
                     ? "bg-green-100 text-green-600"
-                    : order.status === "Processing"
+                    : order.order_status === "processing"
                     ? "bg-yellow-100 text-yellow-600"
                     : "bg-red-100 text-red-600"
                 }`}
               >
-                {order.status}
+                {order?.order_status
+                  ? order.order_status.charAt(0).toUpperCase() +
+                    order.order_status.slice(1)
+                  : ""}
               </span>
-            </p>
+            </div>
           </div>
 
           {/* Items List */}
           <div className="mt-4">
             <p className="font-semibold mb-2 text-gray-800 text-lg">Items</p>
             <ul className="divide-y divide-gray-200 border rounded-lg overflow-hidden">
-              {order.items.map((item, index) => (
+              {order.order_items.map((item, index) => (
                 <li
                   key={index}
                   className="flex justify-between items-center px-4 py-3 hover:bg-gray-50 transition"
                 >
                   <span className="font-medium text-gray-700">
-                    {item.title || item.name}
+                    {item.item_name}
                   </span>
                   <span className="text-gray-600">
-                    {item.quantity || 1} × ₹{item.price || 0} = ₹
+                    {item.quantity || 1} × <CurrencySymbol/> {item.price || 0} = ₹
                     {(item.quantity || 1) * (item.price || 0)}
                   </span>
                 </li>
@@ -86,14 +111,13 @@ export default function OrderDetails() {
           {/* Totals Section */}
           <div className="mt-4 border-t pt-3 space-y-1 text-gray-700">
             <p className="flex justify-between">
-              <span>Subtotal:</span> <span>₹ {order.subtotal || 0}</span>
+              <span>Subtotal:</span> <span><CurrencySymbol/> {order.subtotal || 0}</span>
             </p>
             <p className="flex justify-between">
-              <span>Tax:</span> <span>₹ {order.tax || 0}</span>
+              <span>Tax:</span> <span><CurrencySymbol/> {order.tax || 0}</span>
             </p>
             <p className="flex justify-between font-semibold text-gray-800 text-lg">
-              <span>Total:</span>{" "}
-              <span>₹ {order.total ||0 }</span>
+              <span>Total:</span> <span><CurrencySymbol/> {order.total_price || 0}</span>
             </p>
           </div>
 

@@ -1,40 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { categories } from "../../../data/food";
 
 const initialState = {
-  filterFoods: null,
+  searchTerm: "",
+  searchResults: [],
 };
 
-export const searchFoodSlice = createSlice({
-  name: "search",
+const searchFoodSlice = createSlice({
+  name: "searchFood",
   initialState,
   reducers: {
-    searchForFood: (state, action) => {
-      const query = action.payload.toLowerCase().trim();
-
-      if (!query) {
-        state.filterFoods = null;
-        return;
-      }
-
-      const allFoods = categories.flatMap((category) =>
-        category.items.map((food) => ({
-          ...food,
-          category: category.name,
-        }))
-      );
-
-      const results = allFoods.filter(
-        (food) =>
-          food.title.toLowerCase().includes(query) ||
-          food.category.toLowerCase().includes(query)
-      );
-
-      state.filterFoods = results.length > 0 ? results : [];
+    setSearchTerm: (state, action) => {
+      state.searchTerm = action.payload;
+    },
+    setSearchResults: (state, action) => {
+      state.searchResults = action.payload;
     },
   },
 });
 
-export const { searchForFood } = searchFoodSlice.actions;
-
+export const { setSearchTerm, setSearchResults } = searchFoodSlice.actions;
 export default searchFoodSlice.reducer;

@@ -1,70 +1,155 @@
-import { useState } from "react";
-import { categories } from "../../data/food";
-import Layout from "../../layouts/Layout";
-import CategorySlider from "../../components/Slider/CategorySlider";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+
+import Layout from "../../layouts/Layout";
 import Banner from "../../layouts/Banner/Banner";
 import Header from "../../layouts/Header/Header";
-import FoodCard from "../../components/Card/FoodCard";
+import CategoryTabs from "../../components/Category/CategoryTabs";
+import CategoryListing from "../../components/Category/CategoryListing";
+
+import { transformDrinksData } from "../../utils/drinksTransform";
+import { transformMenuData } from "../../utils/menuTransform";
+import { getAllSearchKeys } from "../../utils/getAllSearchKeys";
+import { setSearchResults } from "../../redux/features/search/searchFoodSlice";
+
 
 export default function IndexPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const filterFoods = useSelector((state) => state.search.filterFoods);
+  const [activeTab, setActiveTab] = useState("All");
+  const [Foods, setFoods] = useState({});
+  const [Drinks, setDrinks] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredCategories =
-    filterFoods === null
-      ? selectedCategory === "All"
-        ? categories
-        : categories.filter(
-            (cat) => cat.name.toLowerCase() === selectedCategory.toLowerCase()
-          )
-      : filterFoods.length > 0
-      ? [
-          {
-            name: "Search Results",
-            items: filterFoods,
-          },
-        ]
-      : [
-          {
-            name: "Search Results",
-            items: [],
-          },
-        ];
+  const dispatch = useDispatch();
+  const searchTerm = useSelector((state) => state.searchFood.searchTerm);
+  const searchResults = useSelector((state) => state.searchFood.searchResults);
+  const hotel = useSelector((state) => state.hotel.hotel);
+
+  const hotel_id = hotel?.id || null;
+  
+
+  // Fetch Foods
+  const fetchAllFoodMenu = async () => {
+    try {
+      const response = await fetch(
+        `https://testing-demo.com/jaichand/digital-menu/api/hotel/foods/${hotel_id}`
+      );
+      const result = await response.json();
+      setFoods(transformMenuData(result.data));
+    } catch (error) {
+      console.error("Error fetching foods:", error);
+    }
+  };
+
+  // Fetch Drinks
+  const fetchAllDrinkMenu = async () => {
+    try {
+      const response = await fetch(
+        `https://testing-demo.com/jaichand/digital-menu/api/hotel/drinks/${hotel_id}`
+      );
+      const result = await response.json();
+      setDrinks(transformDrinksData(result.data));
+    } catch (error) {
+      console.error("Error fetching drinks:", error);
+    }
+  };
+
+  // Load Data
+  useEffect(() => {
+    const loadData = async () => {
+      await Promise.all([fetchAllFoodMenu(), fetchAllDrinkMenu()]);
+      setIsLoading(false);
+    };
+    loadData();
+  }, []);
+
+  // Search Effect
+  useEffect(() => {
+    if (!searchTerm) {
+      dispatch(setSearchResults([]));
+      return;
+    }
+
+    const searchLower = searchTerm.toLowerCase();
+    const filteredResults = [];
+
+    const filterData = (dataObj) => {
+      for (const category in dataObj) {
+        const subData = dataObj[category];
+
+        // If parent category matches search, include all items from subcategories or array
+        if (category.toLowerCase().includes(searchLower)) {
+          if (Array.isArray(subData)) {
+            filteredResults.push({ name: category, items: subData });
+          } else if (typeof subData === "object") {
+            // Merge all items from subcategories
+            const mergedItems = Object.values(subData).flat();
+            filteredResults.push({ name: category, items: mergedItems });
+          }
+          continue; // skip further filtering for this category
+        }
+
+        // Otherwise, filter normally
+        if (Array.isArray(subData)) {
+          const matchedItems = subData.filter((item) =>
+            item.title.toLowerCase().includes(searchLower)
+          );
+          if (matchedItems.length)
+            filteredResults.push({ name: category, items: matchedItems });
+        } else if (typeof subData === "object") {
+          for (const sub in subData) {
+            if (sub.toLowerCase().includes(searchLower)) {
+              filteredResults.push({ name: sub, items: subData[sub] });
+            } else {
+              const matchedItems = subData[sub].filter((item) =>
+                item.title.toLowerCase().includes(searchLower)
+              );
+              if (matchedItems.length)
+                filteredResults.push({ name: sub, items: matchedItems });
+            }
+          }
+        }
+      }
+    };
+
+    filterData(Foods);
+    filterData(Drinks);
+
+    dispatch(setSearchResults(filteredResults));
+  }, [searchTerm, Foods, Drinks, dispatch]);
+
+  // Combine Foods + Drinks / Search
+  let dataToRender = {};
+  if (searchTerm) {
+    dataToRender = searchResults.reduce((acc, cat) => {
+      acc[cat.name] = cat.items || [];
+      return acc;
+    }, {});
+  } else {
+    if (activeTab === "All") dataToRender = { ...Foods, ...Drinks };
+    else if (activeTab === "Foods") dataToRender = Foods;
+    else if (activeTab === "Drinks") dataToRender = Drinks;
+  }
+
+  const hasResults = dataToRender && Object.keys(dataToRender).length > 0;
+  const AllSearch = [...getAllSearchKeys(Foods), ...getAllSearchKeys(Drinks)];
 
   return (
-    <>
-      <Layout>
-        <Banner />
-        <Header />
-        <section className="food-category-section py-3">
-          <div className="mx-auto space-y-10 max-w-[92%] md:max-w-7xl">
-            <CategorySlider
-              categories={categories}
-              active={selectedCategory}
-              setActive={setSelectedCategory}
-            />
-          </div>
-        </section>
+    <Layout>
+      <Banner />
+      <Header allItems={AllSearch || []} />
+      <CategoryTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <section className="py-4">
-          <div className="mx-auto space-y-10 max-w-[92%] md:max-w-7xl">
-            {filteredCategories.map((cat, i) => (
-              <div key={i}>
-                <h2 className="text-2xl font-bold mb-6 text-[#5c471c]">
-                  {cat.name}
-                </h2>
-
-                {cat.items.length === 0 ? (
-                  <p className=" text-gray-500 font-medium">No Results Found</p>
-                ) : (
-                  <FoodCard cat={cat} />
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      </Layout>
-    </>
+      {isLoading ? (
+        <div className="text-center py-20 text-lg font-semibold text-gray-500">
+          Loading menu...
+        </div>
+      ) : hasResults ? (
+        <CategoryListing data={dataToRender } />
+      ) : searchTerm ? (
+        <div className="text-center py-10 text-lg font-semibold text-gray-500">
+          Search result not found
+        </div>
+      ) : null}
+    </Layout>
   );
 }

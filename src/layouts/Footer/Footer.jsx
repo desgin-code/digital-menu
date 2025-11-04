@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer className="fixed bottom-0 left-0 w-full bg-[#333] text-white flex justify-between items-center py-3 px-7 shadow-lg">
       <div className="flex flex-col items-center text-sm  hover:cursor-pointer">
-        <Link to="/">
+        <Link to="/menu">
           {" "}
           <FaHome size={22} />
         </Link>
