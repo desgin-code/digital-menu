@@ -32,12 +32,12 @@ function LandingPage() {
       if (!result.status) {
         setHotel(null);
         setLoading(false);
-        dispatch(hotelDetails(null))
+        dispatch(hotelDetails(null));
         return;
       }
 
       setHotel(result.data);
-      dispatch(hotelDetails(result.data))
+      dispatch(hotelDetails(result.data));
       setLoading(false);
     } catch (error) {
       alert("Something went wrong. Please try again later.");
@@ -117,7 +117,13 @@ function LandingPage() {
           </div>
 
           <div className="mt-12 text-gray-500 text-sm z-10">
-            © {new Date().getFullYear()} BON HOTEL. All Rights Reserved.
+            © {new Date().getFullYear()}{" "}
+            {hotel.hotel_name
+              .toLowerCase()
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")}
+            . All Rights Reserved.
           </div>
         </>
       ) : (
