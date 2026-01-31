@@ -22,8 +22,8 @@ export default function Header({ allItems }) {
 
   const isLogin = useSelector((state) => state.login.islogin);
   const hotel = useSelector((state) => state.hotel.hotel);
-  
-    
+
+
 
   useEffect(() => {
     if (isLogin) {
@@ -86,17 +86,31 @@ export default function Header({ allItems }) {
             ) : (
               <>
                 <div className="logo-toggle">
-                 
-                   
-                    <Link  to = {`/${hotel.slug}`} className="toggle"  >
-                      <FaArrowLeft />
-                    </Link>
-                 
-                  <img
-                    className="logo"
-                    src="https://testing-demo.com/kuldeep/digital-menu/assets/image/logo.png"
-                    alt="logo"
-                  />
+
+
+                  <Link to={`/hotel/${hotel.slug}`} className="toggle"  >
+                    <FaArrowLeft />
+                  </Link>
+
+
+                  {hotel && hotel.logo ? (
+                    <img
+                      className="logo"
+                      src={`https://testing-demo.com/jaichand/digital-menu/public/uploads/hotel/logo/${hotel.logo}`}
+                      alt="Hotel Logo"
+                      style={{ maxHeight: '100px' }}
+                    />
+                  ) : (
+                    <span
+                      className="logo-title"
+
+                    >
+                      Logo
+                    </span>
+                  )}
+
+
+
                 </div>
                 <div className="relative w-full max-w-md">
                   {!searchTerm && allItems.length > 0 && allItems[index] && (

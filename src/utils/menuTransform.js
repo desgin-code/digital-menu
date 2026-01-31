@@ -13,6 +13,7 @@ export const transformMenuData = (apiData) => {
           categoryObj[sub.title] = sub.items.map((item) => ({
             id: item.id,
             title: item.name,
+            discount:item.discount,
             price: parseFloat(item.price || 0),
             img: item.image ? `${BASE_URL}/${item.image}` : "",
             desc: item.desc || "",
@@ -20,6 +21,7 @@ export const transformMenuData = (apiData) => {
               ? item.food_options.map((opt) => ({
                   id: opt.id,
                   title: opt.title,
+                  discount:opt.discount,
                   price: parseFloat(opt.price || 0),
                   img: opt.image
                     ? `https://testing-demo.com/jaichand/digital-menu/public/uploads/hotel/menu/foodOption/${opt.image}`
@@ -37,6 +39,7 @@ export const transformMenuData = (apiData) => {
       categoryObj[""] = category.items.map((item) => ({
         id: item.id,
         title: item.name,
+        discount:item.discount,
         price: parseFloat(item.price || 0),
         img: item.image ? `${BASE_URL}/${item.image}` : "",
         desc: item.desc || "",
@@ -44,6 +47,7 @@ export const transformMenuData = (apiData) => {
           ? item.food_options.map((opt) => ({
               id: opt.id,
               title: opt.title,
+              discount:opt.discount,
               price: parseFloat(opt.price || 0),
               img: opt.image
                 ? `https://testing-demo.com/jaichand/digital-menu/public/uploads/hotel/menu/foodOption/${opt.image}`

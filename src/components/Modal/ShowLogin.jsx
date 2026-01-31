@@ -1,122 +1,97 @@
-import { use } from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../redux/features/login/loginUserSlice";
+import countryCodes from "../../data/countryCodes";
+import { useTranslation } from "react-i18next";
 
 export default function ShowLogin({
   setShowLogin,
   setIsLoggedIn,
   purpose = "checkout",
 }) {
-  const [step, setStep] = useState("phone");
+  const [countryCode, setCountryCode] = useState("+254");
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
   const [errorMsg, setErrorMsg] = useState(null);
-  const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleGetOtp = () => {
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phone)) {
-      setErrorMsg("Please enter a valid  10 digits phone number");
-    } else {
-      setStep("otp");
-      setErrorMsg(null);
+  const handleContinue = () => {
+
+    if (!/^7\d{8}$/.test(phone)) {
+      setErrorMsg("Please enter a valid  phone number");
+      return;
     }
+    const fullPhone = `${countryCode}${phone}`;
+    setErrorMsg(null);
+
+    dispatch(loginUser({ phone: fullPhone }));
+    setIsLoggedIn(true);
+    setShowLogin(false);
+
+    purpose === "login"
+      ? window.location.reload()
+      : navigate("/checkout-details");
   };
 
-  const handleVerifyOtp = () => {
-    if (otp === "1234") {
-      setErrorMsg(null);
-      setIsLoggedIn(true);
-      setShowLogin(false);
-      dispatch(loginUser({ phone }));
-
-      if (purpose === "login") {
-        window.location.reload();
-      } else {
-        navigate("/ordersummary");
-      }
-    } else {
-      setErrorMsg("Invalid OTP");
-    }
-  };
   return (
-    <>
+    <div
+      className="fixed inset-0 bg-black/40 flex items-end justify-center z-50"
+      onClick={() => setShowLogin(false)}
+    >
       <div
-        className="fixed inset-0 bg-black/40 flex items-end justify-center z-50"
-        onClick={() => setShowLogin(false)}
+        className="bg-white w-full sm:max-w-md h-[60vh] sm:h-auto rounded-t-3xl p-4 sm:p-6 shadow-lg flex flex-col"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="bg-white w-full md:max-w-[92%] h-[50vh] rounded-t-3xl p-6 shadow-lg animate-slide-up relative"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-14 h-1.5 bg-gray-300 rounded-full"></div>
+        <h3 className="text-xl sm:text-2xl font-bold text-center mb-4 text-[#5c471c]">
+          {t("loginToContinue")}
+        </h3>
 
-          {step === "phone" && (
-            <>
-              <h3 className="text-2xl font-bold mb-6 text-[#5c471c] text-center">
-                Login to Continue
-              </h3>
-              {errorMsg && (
-                <p className="text-red-900 font-bold text-center">{errorMsg}</p>
-              )}
-              <p className="text-gray-500 text-center mb-6">
-                Enter your mobile number to receive an OTP
-              </p>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="📱 Enter phone number"
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-[#e68900]"
-              />
-              <button
-                onClick={() => handleGetOtp()}
-                className="w-full bg-[#e68900] text-white py-3 rounded-xl font-semibold text-lg hover:bg-[#cc7700] transition"
-              >
-                Get OTP
-              </button>
-            </>
-          )}
+        {errorMsg && (
+          <p className="text-red-700 text-center font-semibold mb-4 text-sm sm:text-base">
+            {errorMsg}
+          </p>
+        )}
 
-          {step === "otp" && (
-            <>
-              <h3 className="text-2xl font-bold mb-6 text-[#5c471c] text-center">
-                Verify OTP
-              </h3>
-              {errorMsg && (
-                <p className="text-red-900 font-bold text-center">{errorMsg}</p>
-              )}
-              <p className="text-gray-500 text-center mb-6">
-                Enter the 4-digit OTP sent to{" "}
-                <span className="font-semibold">{phone}</span>
-              </p>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="🔑 Enter 4-digit OTP"
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 mb-6 text-center tracking-widest text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[#e68900]"
-              />
-              <button
-                onClick={handleVerifyOtp}
-                className="w-full bg-[#e68900] text-white py-3 rounded-xl font-semibold text-lg hover:bg-[#cc7700] transition"
-              >
-                Verify & Continue
-              </button>
-            </>
-          )}
-
-          <button
-            onClick={() => setShowLogin(false)}
-            className="w-full mt-6 text-gray-500 hover:text-red-600 text-center"
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <select
+            value={countryCode}
+            onChange={(e) => setCountryCode(e.target.value)}
+            className="border-2 border-gray-200 rounded-xl px-3 py-3 text-sm sm:text-base w-full sm:w-32"
           >
-            Cancel
-          </button>
+            {countryCodes.map((item, index) => (
+              <option key={index} value={item.code}>
+                {item.flag} {item.country} ({item.code})
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="tel"
+            placeholder="Phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 text-sm sm:text-base"
+          />
         </div>
+
+        <button
+          onClick={handleContinue}
+          className="w-full bg-[#e68900] text-white py-3 rounded-xl font-semibold text-sm sm:text-base mb-2 sm:mb-0"
+        >
+          Continue
+        </button>
+
+        <button
+          onClick={() => setShowLogin(false)}
+          className="w-full mt-2 sm:mt-4 text-gray-500 text-center text-sm sm:text-base"
+        >
+          Cancel
+        </button>
       </div>
-    </>
+    </div>
+
   );
 }

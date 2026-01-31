@@ -31,10 +31,15 @@ export default function ViewCart() {
     }
   }, [isLogin]);
 
-  const subTotals = cartItems.reduce((acc, item) => {
+const subTotals = Math.round(
+  cartItems.reduce((acc, item) => {
     const qty = item.quantity || 1;
-    return acc + Number(item.price) * qty;
-  }, 0);
+    const discount = item.discount || 0; 
+    const price = item.price || 0;      
+    const discountedPrice = price * (1 - discount / 100);
+    return acc + discountedPrice * qty;
+  }, 0)
+);
 
   const handleAddToCart = (item) => {
     dispatch(addToCart(item));
@@ -52,7 +57,8 @@ export default function ViewCart() {
     if (!isLoggedIn) {
       setShowLogin(true);
     } else {
-      navigate("/ordersummary");
+      navigate("/checkout-details");
+      //navigate("/ordersummary");
     }
   };
 
@@ -90,9 +96,17 @@ export default function ViewCart() {
                       </div>
 
                       <div className="flex justify-between items-center mt-2">
-                        <p className="text-[#e68900] font-bold text-lg">
-                          <CurrencySymbol/>{item.price}
-                        </p>
+
+                        <div className="flex items-center space-x-2">
+                          <span className="line-through text-gray-400 text-sm font-bold">
+                            <CurrencySymbol /> {item.price}
+                          </span>
+                          <span className="font-bold text-[#e68900]">
+                            <CurrencySymbol /> {Math.round(item.price - (item.price * (item.discount / 100)))}
+
+                          </span>
+
+                        </div>
 
                         <div className="flex items-center gap-2 border-2 border-[#e68900] h-9 rounded-full px-3">
                           <button
@@ -135,7 +149,7 @@ export default function ViewCart() {
 
               <div className="sticky bottom-0 bg-white shadow-lg p-4 flex flex-wrap justify-between items-center rounded-lg gap-3">
                 <h3 className="text-xl font-bold text-[#5c471c]">
-                  Subtotal:  <CurrencySymbol/> {subTotals}
+                  Subtotal:  <CurrencySymbol /> {subTotals}
                 </h3>
 
                 <div className="flex gap-4">

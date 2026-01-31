@@ -35,6 +35,7 @@ export default function IndexPage() {
       );
       const result = await response.json();
       setFoods(transformMenuData(result.data));
+  
     } catch (error) {
       console.error("Error fetching foods:", error);
     }

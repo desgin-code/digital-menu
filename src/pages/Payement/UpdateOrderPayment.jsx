@@ -13,12 +13,14 @@ export default function UpdateOrderPayment() {
   const order = location.state?.order;
 
   const [selectedMethod, setSelectedMethod] = useState(null);
+  const [isPaying, setIsPaying] = useState(false);
 
   const handleOnlinePayment = async () => {
-    if (!selectedMethod) {
-      alert("Please select a payment method first!");
-      return;
-    }
+    // if (!selectedMethod) {
+    //   alert("Please select a payment method first!");
+    //   return;
+    // }
+    setIsPaying(true);
 
     try {
       const response = await fetch(
@@ -31,7 +33,7 @@ export default function UpdateOrderPayment() {
           body: JSON.stringify({
             order_id: order.id,
             payment: "paid",
-            payment_method: selectedMethod,
+            payment_method: '',
             payment_id: "DUMMY123",
           }),
         }
@@ -39,8 +41,19 @@ export default function UpdateOrderPayment() {
 
       const data = await response.json();
 
+
+
       if (data.status) {
-        alert("Your order has been paid successfully.");
+
+        const paymentResponse = data.payment_api_response;
+
+        if (paymentResponse && paymentResponse.message) {
+          alert(`${paymentResponse.message}!`);
+        } else {
+          alert(`${data.message}!`);
+        }
+
+
         navigate("/orders");
       } else {
         alert(data.message || "Failed to update payment.");
@@ -48,6 +61,8 @@ export default function UpdateOrderPayment() {
     } catch (error) {
       console.error("Error updating payment:", error);
       alert("Something went wrong while processing payment.");
+    } finally {
+      setIsPaying(false);
     }
   };
 
@@ -112,7 +127,7 @@ export default function UpdateOrderPayment() {
                     </div>
                   </div>
                   <div className="font-semibold text-[#e68900]">
-                    <CurrencySymbol/> {(item.price * (item.quantity || 1)).toFixed(2)}
+                    <CurrencySymbol /> {(item.price * (item.quantity || 1)).toFixed(2)}
                   </div>
                 </div>
               ))}
@@ -122,19 +137,19 @@ export default function UpdateOrderPayment() {
             <div className="border-t border-gray-200 pt-4 space-y-2">
               <div className="flex justify-between text-gray-600 font-medium">
                 <span>Subtotal</span>
-                <span><CurrencySymbol/> {order.subtotal || 0}</span>
+                <span><CurrencySymbol /> {Math.ceil(order.subtotal) || 0}</span>
               </div>
               <div className="flex justify-between text-gray-600 font-medium">
                 <span>Tax (5%)</span>
-                <span><CurrencySymbol/> {order.tax || 0}</span>
+                <span><CurrencySymbol /> {Math.ceil(order.tax) || 0}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-[#5c471c]">
                 <span>Total</span>
-                <span><CurrencySymbol/> {order.total_price || 0}</span>
+                <span><CurrencySymbol /> {Math.ceil(order.total_price) || 0}</span>
               </div>
             </div>
 
-            <div className="space-y-3 mt-6">
+            {/* <div className="space-y-3 mt-6">
               <h4 className="font-semibold text-gray-700">
                 Choose Payment Method
               </h4>
@@ -153,14 +168,15 @@ export default function UpdateOrderPayment() {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             <div className="flex flex-col sm:flex-row gap-4 mt-6">
               <button
                 onClick={handleOnlinePayment}
+                disabled={isPaying}
                 className="flex-1 py-4 rounded-2xl font-semibold text-white bg-gradient-to-r from-[#e68900] to-[#f2b100] shadow-lg hover:from-[#cc7700] hover:to-[#e6a100] transition-all"
               >
-                Pay Now
+                {isPaying ? "Paying..." : "Pay Now"}
               </button>
               <button
                 onClick={handleCancel}

@@ -17,6 +17,8 @@ export default function FoodCard({ cat }) {
   const items = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
 
+
+
   const handleAddToCart = (item) => {
     dispatch(addToCart(item));
     setCartMessage(`${totalItems + 1} items added to cart!`);
@@ -54,8 +56,19 @@ export default function FoodCard({ cat }) {
                 <h3 className="text-md md:text-lg font-semibold text-gray-800 leading-tight">
                   {item.title}
                 </h3>
-                <p className="text-[#e68900] font-bold mt-1 text-sm md:text-base">
-                  <CurrencySymbol/> {item.price}
+                <p className="text-[#e68900] font-bold mt-1 text-sm md:text-base flex">
+
+                  <div className="flex items-center space-x-2">
+                    <span className="line-through text-gray-400 text-sm">
+                      <CurrencySymbol /> {item.price}
+                    </span>
+                    <span className="font-bold">
+                      <CurrencySymbol /> {Math.round(item.price - (item.price * (item.discount / 100)))}
+
+                    </span>
+
+                  </div>
+
                 </p>
               </div>
 

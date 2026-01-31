@@ -3,9 +3,12 @@ import { FaStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import countryCodes from "../../data/countryCodes";
+import { useTranslation } from "react-i18next";
 
 function FeedbackPage() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [questions, setQuestions] = useState([]);
   const [ratings, setRatings] = useState([]);
   const [name, setName] = useState("");
@@ -13,6 +16,7 @@ function FeedbackPage() {
   const [phone, setPhone] = useState("");
   const [file, setFile] = useState(null);
   const [comment, setComment] = useState("");
+  const [countryCode, setCountryCode] = useState("+254");
 
   const hotel = useSelector((state) => state.hotel.hotel);
 
@@ -49,16 +53,17 @@ function FeedbackPage() {
     e.preventDefault();
 
     if (!name.trim()) return alert("Please enter your name.");
-    if (!email.trim()) return alert("Please enter your email.");
-    if (!phone.trim()) return alert("Please enter your phone number.");
+    // if (!email.trim()) return alert("Please enter your email.");
+    // if (!phone.trim()) return alert("Please enter your phone number.");
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email))
+    if (!emailRegex.test(email) && email)
       return alert("Please enter a valid email address.");
 
-    const phoneRegex = /^[0-9]{10,12}$/;
-    if (!phoneRegex.test(phone))
+    const phoneRegex = /^[0-9]{6,12}$/;
+    if (!phoneRegex.test(phone) && phone)
       return alert("Please enter a valid phone number.");
+
 
     const filledRatings = ratings.map((r) => ({
       question: r.question,
@@ -66,11 +71,13 @@ function FeedbackPage() {
       score: r.score || 0,
     }));
 
+    const fullPhone = `${countryCode}${phone}`;
+
     const formData = new FormData();
     formData.append("hotelId", hotel_id);
     formData.append("name", name);
     formData.append("email", email);
-    formData.append("phone", phone);
+    formData.append("phone", fullPhone);
     formData.append("comment", comment);
     formData.append("ratings", JSON.stringify(filledRatings));
     if (file) formData.append("file", file);
@@ -107,7 +114,7 @@ function FeedbackPage() {
           <button onClick={() => navigate(-1)}>← Back</button>
         </button>
         <h1 className="text-4xl font-extrabold text-gray-800 border-b-4 border-[#e68900] pb-2">
-          Feedback
+          {t("feedback")}
         </h1>
         <div></div>
       </div>
@@ -116,7 +123,7 @@ function FeedbackPage() {
         {questions && questions.length > 0 ? (
           <>
             {/* Left Column: Feedback Questions */}
-            <div className="md:col-span-8 grid md:grid-cols-1 gap-6">
+            <div className="md:col-span-7 grid md:grid-cols-1 gap-6">
               {questions.map((qItem, qIndex) => (
                 <div
                   key={qIndex}
@@ -131,11 +138,10 @@ function FeedbackPage() {
                       <FaStar
                         key={star}
                         size={22}
-                        className={`cursor-pointer transition-colors duration-200 ${
-                          ratings[qIndex]?.score >= star
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className={`cursor-pointer transition-colors duration-200 ${ratings[qIndex]?.score >= star
+                          ? "text-yellow-400"
+                          : "text-gray-300"
+                          }`}
                         onClick={() => handleStarClick(qIndex, star)}
                       />
                     ))}
@@ -145,7 +151,7 @@ function FeedbackPage() {
             </div>
 
             {/* Right Column: User Details */}
-            <div className="md:col-span-4 flex flex-col justify-start space-y-6">
+            <div className="md:col-span-5 flex flex-col justify-start space-y-6">
               <input
                 type="text"
                 placeholder="Your Name *"
@@ -157,20 +163,35 @@ function FeedbackPage() {
 
               <input
                 type="email"
-                placeholder="Your Email *"
+                placeholder="Your Email "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 pt-5 pb-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 required
               />
 
-              <input
-                type="number"
-                placeholder="Your Phone *"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 pt-5 pb-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              />
+              <div className="flex gap-1 mb-6">
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="w-full px-4 pt-5 pb-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                >
+                  {countryCodes.map((item, index) => (
+                    <option key={index} value={item.code}>
+                      {item.country} ({item.code})
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="number"
+                  placeholder="Phone number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-4 pt-5 pb-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                />
+              </div>
+
 
               <input
                 type="file"

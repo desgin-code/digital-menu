@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function NotFound() {
   const navigate = useNavigate();
+  const hotel = useSelector((state) => state.hotel.hotel);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen  to-black text-white px-6">
@@ -14,7 +16,7 @@ export default function NotFound() {
       </p>
 
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate(hotel.slug ? `/hotel/${hotel.slug}` : "/")}
         className="mt-8 px-6 py-3 bg-[#935b63] hover:bg-[#935b63] text-white font-semibold rounded-2xl shadow-lg transform hover:scale-105 transition duration-300 ease-in-out"
       >
         Go Back Home

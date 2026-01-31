@@ -1,42 +1,70 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../../layouts/Header/Header";
 import Layout from "../../layouts/Layout";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { bookOrder } from "../../redux/features/order/bookOrderSlice";
 import { clearCart } from "../../redux/features/cart/cartFoodSlice";
 import CurrencySymbol from "../../components/Currency/CurrencySymbol";
 
 export default function OrderSummary() {
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
-  const { phone } = useSelector((state) => state.login.user);
   const hotel = useSelector((state) => state.hotel.hotel);
-
+  const { phone } = useSelector((state) => state.login.user);
   const hotel_id = hotel?.id || null;
+  const [isPaying, setIsPaying] = useState(false);
+  const [customerDetails, setCustomerDetails] = useState({
+    name: "",
+    email: "",
+    seatingType: "",
+    location: "",
+    specialRequests: "",
+  });
+  const [coupon, setCoupon] = useState(null);
+  const [couponCode, setCouponCode] = useState('');
+  const [discount, setDiscount] = useState(0);
 
-  const subTotal = cartItems.reduce(
-    (acc, item) => acc + item.price * (item.quantity || 1),
-    0
+  useEffect(() => {
+    const stored = localStorage.getItem("checkoutDetails");
+    if (stored) {
+      setCustomerDetails(JSON.parse(stored));
+    }
+  }, []);
+
+  const subTotals = Math.round(
+    cartItems.reduce((acc, item) => {
+      const qty = item.quantity || 1;
+      const discount = item.discount || 0;
+      const price = item.price || 0;
+      const discountedPrice = price * (1 - discount / 100);
+      return acc + discountedPrice * qty;
+    }, 0)
   );
-  const tax = (subTotal * 0.05).toFixed(2);
-  const total = (subTotal + Number(tax)).toFixed(2);
+
+  const tax = Math.round(subTotals * 0.05);
+  const total = Math.round(subTotals + tax - discount);
+
+
 
   const handlePayNow = async () => {
-    navigate("/payment");
-  };
 
-  const handlePayLater = async () => {
+    setIsPaying(true);
     const orderData = {
+
       hotel_id: hotel_id,
       user: phone,
       items: cartItems,
-      subtotal: subTotal,
+      subtotal: subTotals,
       tax: tax,
+      discount,
       total: total,
-      payment: "pending",
-      paymentMethod: "pay Later",
+      couponCode,
+      payment: "paid",
+      paymentMethod: '',
+      paymentId: "DUMMY12345",
+      customerDetails
     };
 
     try {
@@ -45,90 +73,246 @@ export default function OrderSummary() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(orderData),
+          body: JSON.stringify(orderData)
         }
       );
 
       const data = await response.json();
 
       if (data.status) {
-        console.log("Order placed:", data.data);
+
+        const paymentResponse = data.payment_api_response;
+
+        if (paymentResponse && paymentResponse.message) {
+          alert(`${paymentResponse.message}!`);
+        } else {
+          alert(`${data.message}!`);
+        }
+
         dispatch(clearCart());
         navigate("/ordersconfirmation");
       } else {
-        console.error("Failed to place order:", data.error);
+        console.error("Failed to place order:", data.message);
         alert("Failed to place order. Please try again!");
       }
     } catch (error) {
       console.error("API Error:", error);
       alert("Something went wrong while placing the order!");
+    } finally {
+      setIsPaying(false);
     }
   };
+
+
+
+  const handlePayLater = async () => {
+    const orderData = {
+      hotel_id,
+      user: phone,
+      items: cartItems,
+      subtotal: subTotals,
+      tax,
+      discount,
+      total,
+      couponCode,
+      payment: "pending",
+      paymentMethod: "pay later",
+      customerDetails,
+    };
+
+    try {
+      const response = await fetch(
+        "https://testing-demo.com/jaichand/digital-menu/api/hotel/book-order",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData),
+        }
+      );
+
+      const data = await response.json();
+      if (data.status) {
+        dispatch(clearCart());
+        navigate("/ordersconfirmation");
+      } else {
+        alert("Failed to place order. Try again!");
+      }
+    } catch (error) {
+      alert("Something went wrong while placing the order!");
+    }
+  };
+
+
+
+  const fetchCoupon = async () => {
+
+    try {
+      const response = await fetch(
+        "https://testing-demo.com/jaichand/digital-menu/api/hotel/coupon",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ hotel_id: hotel_id }),
+        }
+      );
+
+      const result = await response.json();
+
+      setCoupon(result.data)
+
+    } catch (error) {
+
+      console.error("Error fetching hotel:", error.message);
+
+    }
+  };
+
+  useEffect(() => {
+    if (hotel_id) fetchCoupon();
+  }, [hotel_id]);
+
+
+
+
+
+  const applyCoupon = () => {
+    const code = coupon.code;
+    if (code === couponCode) {
+      const discountDecimal = coupon.discount / 100;
+      const discountAmount = Math.round(subTotals * discountDecimal);
+      setDiscount(discountAmount);
+      alert(`Coupon Applied! ${coupon.discount}% discount applied.`);
+    } else {
+      setDiscount(0);
+      alert("Invalid coupon code.");
+    }
+  };
+  
 
   return (
     <Layout>
       <Header />
-      <section className="">
-        <div className="mx-auto space-y-10 max-w-[92%] md:max-w-7xl">
-          <h2 className="text-2xl font-bold text-[#5c471c] ">Order Summary</h2>
+      <section >
+        <div className="max-w-xl mx-auto bg-white rounded-xl shadow px-6 pt-2 pb-2">
 
+          <h2 className="text-2xl font-bold mb-6 text-[#5c471c]">Order Summary</h2>
           {cartItems.length > 0 ? (
             <>
-              <div className="space-y-8 mb-5">
+
+              <div className="bg-white rounded-2xl shadow p-6 space-y-6 mb-3">
+                <h3 className="text-xl font-semibold text-gray-800">Guest Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div>
+                    <p className="font-medium text-gray-700">Name:</p>
+                    <p className="text-gray-800">{customerDetails.name}</p>
+                  </div>
+                  {customerDetails.email && (
+                    <div>
+                      <p className="font-medium text-gray-700">Email:</p>
+                      <p className="text-gray-800">{customerDetails.email}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <p className="font-medium text-gray-700">
+                      {customerDetails.seatingType === "table" ? "Table No." : "Room No."}:
+                    </p>
+                    <p className="text-gray-800">{customerDetails.location}</p>
+                  </div>
+                  {customerDetails.specialRequests && (
+                    <div className="md:col-span-2">
+                      <p className="font-medium text-gray-700">Special Requests:</p>
+                      <p className="text-gray-800">{customerDetails.specialRequests}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-3">
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex  md:flex-row items-center justify-between bg-white rounded-2xl shadow-md p-4 hover:shadow-lg transition"
+                    className="flex justify-between items-center bg-white rounded-2xl shadow p-4 hover:shadow-lg transition"
                   >
-                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="flex items-center gap-4">
                       <img
                         src={item.img}
                         alt={item.title}
                         className="w-24 h-24 rounded-xl object-cover"
                       />
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-800">
-                          {item.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm mt-1">
-                          Price: <CurrencySymbol/>{item.price} × {item.quantity || 1}
+                      <div>
+                        <h4 className="font-semibold text-gray-800">{item.title}</h4>
+                        <p className="text-gray-600">
+                          <CurrencySymbol /> {Math.round(item.price - (item.price * (item.discount / 100)))} × {item.quantity || 1}
                         </p>
                       </div>
                     </div>
-                    <div className="mt-2 sm:mt-0 text-right">
-                      <p className="text-[#e68900] font-bold text-lg">
-                        <CurrencySymbol/>{(item.price * (item.quantity || 1)).toFixed(2)}
-                      </p>
+                    <div className="text-right font-bold text-[#5c471c]">
+                      <CurrencySymbol /> {(Math.round(item.price - (item.price * (item.discount / 100))) * (item.quantity || 1))}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className=" bg-white shadow-t-lg p-4 md:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-200 z-50">
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                  <div className="flex justify-between w-full sm:w-auto">
+              <div className="bg-white rounded-2xl shadow p-6 space-y-4 mb-3">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    placeholder="Coupon Code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className="flex-1 border rounded-lg px-4 py-2 w-full"
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    className="w-full sm:w-auto bg-[#e68900] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#cc7700] transition"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {discount > 0 && (
+                  <p className="text-green-600 font-semibold mt-2">
+                    Discount Applied: <CurrencySymbol /> {discount}
+                  </p>
+                )}
+              </div>
+
+
+              <div className="bg-white rounded-2xl shadow p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="space-y-2 w-full sm:w-auto">
+                  <div className="flex justify-between">
                     <span className="font-medium text-gray-700">Subtotal:</span>
                     <span className="font-semibold text-gray-800">
-                      <CurrencySymbol/>{subTotal.toFixed(2)}
+                      <CurrencySymbol /> {subTotals}
                     </span>
                   </div>
-                  <div className="flex justify-between w-full sm:w-auto">
-                    <span className="font-medium text-gray-700 ">
-                      Tax (5%):
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Tax (5%):</span>
+                    <span className="font-semibold text-gray-800">
+                      <CurrencySymbol /> {tax}
                     </span>
-                    <span className="font-semibold text-gray-800 "><CurrencySymbol/> {tax}</span>
                   </div>
-                  <div className="flex justify-between w-full sm:w-auto">
-                    <span className="font-medium text-gray-700">Total:</span>
-                    <span className="font-bold text-[#5c471c] text-lg">
-                      <CurrencySymbol/> {total}
+                  {discount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Discount:</span>
+                      <span className="font-semibold text-green-600">
+                        - <CurrencySymbol /> {discount}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-bold text-[#5c471c] text-lg">
+                    <span>Total:</span>
+                    <span>
+                      <CurrencySymbol /> {total}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-3 sm:mt-0">
+                <div className="flex gap-3 w-full sm:w-auto mt-4 sm:mt-0 flex-col sm:flex-row">
                   <button
                     onClick={handlePayLater}
                     className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-2xl transition"
@@ -136,10 +320,12 @@ export default function OrderSummary() {
                     Pay Later
                   </button>
                   <button
+                    disabled={isPaying}
+
                     onClick={handlePayNow}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#e68900] to-[#f2b100] hover:from-[#cc7700] hover:to-[#e6a100] text-white font-semibold py-3 px-6 rounded-2xl transition shadow-lg"
                   >
-                    Pay Now
+                    {isPaying ? "Processing..." : "Pay Now"}
                   </button>
                 </div>
               </div>
@@ -159,4 +345,5 @@ export default function OrderSummary() {
       </section>
     </Layout>
   );
+
 }

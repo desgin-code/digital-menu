@@ -13,10 +13,10 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const phone = useSelector((state) => state.login.user?.phone || "");
 
-   const hotel = useSelector((state) => state.hotel.hotel);
-  
-    const hotel_id = hotel?.id || null;
- 
+  const hotel = useSelector((state) => state.hotel.hotel);
+
+  const hotel_id = hotel?.id || null;
+
 
 
   const fetchAllOrders = async () => {
@@ -112,29 +112,29 @@ export default function MyOrders() {
                       <p className="text-sm text-gray-500">
                         Payment:{" "}
                         <span
-                          className={`text-xs font-semibold ${
-                            order.payment_status === "paid"
+                          className={`text-xs font-semibold ${order.payment_status === "paid"
                               ? "text-green-600"
                               : order.payment_status === "pending"
-                              ? "text-yellow-600"
-                              : "text-red-600"
-                          }`}
+                                ? "text-yellow-600"
+                                : "text-red-600"
+                            }`}
                         >
                           {order.payment_status
                             ? order.payment_status.charAt(0).toUpperCase() +
-                              order.payment_status.slice(1)
+                            order.payment_status.slice(1)
                             : "Pending"}
                         </span>
                       </p>
+                      <p className="text-sm text-gray-500">{order?.seating_type?.charAt(0).toUpperCase() +
+                            order?.seating_type?.slice(1)} No. : {order.order_location}</p>
                     </div>
                     <span
-                      className={`px-6 py-3 rounded-full text-xs font-semibold ${
-                        order.order_status.toLowerCase() === "delivered"
+                      className={`px-6 py-3 rounded-full text-xs font-semibold ${order.order_status.toLowerCase() === "delivered"
                           ? "bg-green-100 text-green-600"
                           : order.order_status.toLowerCase() === "processing"
-                          ? "bg-yellow-100 text-yellow-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
+                            ? "bg-yellow-100 text-yellow-600"
+                            : "bg-red-100 text-red-600"
+                        }`}
                     >
                       {order.order_status.charAt(0).toUpperCase() +
                         order.order_status.slice(1)}
@@ -148,7 +148,7 @@ export default function MyOrders() {
                         .join(", ")}
                     </p>
                     <p className="text-lg font-semibold mt-2 text-[#5c471c]">
-                      <CurrencySymbol/> {order.total_price}
+                      <CurrencySymbol /> {order.total_price}
                     </p>
                   </div>
                   <div className="mt-4 flex gap-3">
@@ -163,7 +163,7 @@ export default function MyOrders() {
                       View Details
                     </button>
                     {order.order_status.toLowerCase() === "processing" &&
-                    order.payment_status !== "paid" ? (
+                      (order.payment_status !== "paid" && order.payment_status !== "pending") ? (
                       <button
                         className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
                         onClick={() => handleCancelOrder(order.id)}
@@ -171,8 +171,8 @@ export default function MyOrders() {
                         Cancel Order
                       </button>
                     ) : null}
-                    {order.payment_status === "pending" &&
-                    order.order_status.toLowerCase() !== "cancelled" ? (
+                    {(order.payment_status === "pending" || order.payment_status === "failed") &&
+                      order.order_status.toLowerCase() !== "cancelled" ? (
                       <button
                         className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-[#e68900] to-[#f2b100] hover:from-[#cc7700] hover:to-[#e6a100] text-white transition"
                         onClick={() =>

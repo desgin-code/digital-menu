@@ -54,38 +54,52 @@ export default function OrderDetails() {
               <p>
                 <span className="font-semibold">Payment:</span>{" "}
                 <span
-                  className={` text-xs font-semibold ${
-                    order?.payment === "Paid"
-                      ? " text-green-600"
-                      : order.payment === "Pending"
+                  className={` text-xs font-semibold ${order?.payment === "Paid"
+                    ? " text-green-600"
+                    : order.payment === "Pending"
                       ? " text-yellow-600"
                       : " text-red-600"
-                  }`}
+                    }`}
                 >
                   {order?.payment_status
                     ? order.payment_status.charAt(0).toUpperCase() +
-                      order.payment_status.slice(1)
+                    order.payment_status.slice(1)
                     : ""}
                 </span>
               </p>
+              <p ><span className="font-semibold">{order?.seating_type?.charAt(0).toUpperCase() +
+                order?.seating_type?.slice(1)} No. :</span> {order.order_location}</p>
             </div>
             <div>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  order?.order_status === "delivered"
-                    ? "bg-green-100 text-green-600"
-                    : order.order_status === "processing"
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${order?.order_status === "delivered"
+                  ? "bg-green-100 text-green-600"
+                  : order.order_status === "processing"
                     ? "bg-yellow-100 text-yellow-600"
                     : "bg-red-100 text-red-600"
-                }`}
+                  }`}
               >
                 {order?.order_status
                   ? order.order_status.charAt(0).toUpperCase() +
-                    order.order_status.slice(1)
+                  order.order_status.slice(1)
                   : ""}
               </span>
             </div>
           </div>
+
+          {order.special_request && (
+
+            <div className="mt-4">
+              <p className="font-semibold mb-2 text-gray-800 text-lg">Special Requests</p>
+              <p>{order.special_request}</p>
+            </div>
+
+          )}
+
+
+
+
+
 
           {/* Items List */}
           <div className="mt-4">
@@ -100,8 +114,11 @@ export default function OrderDetails() {
                     {item.item_name}
                   </span>
                   <span className="text-gray-600">
-                    {item.quantity || 1} × <CurrencySymbol/> {item.price || 0} = ₹
-                    {(item.quantity || 1) * (item.price || 0)}
+                    <span className="text-gray-600">
+                      {(item.quantity || 1)} × <CurrencySymbol /> {Math.round(item.price * (1 - (item.discount || 0) / 100))} = <CurrencySymbol />
+                      {(item.quantity || 1) * Math.round(item.price * (1 - (item.discount || 0) / 100))}
+                    </span>
+
                   </span>
                 </li>
               ))}
@@ -111,15 +128,34 @@ export default function OrderDetails() {
           {/* Totals Section */}
           <div className="mt-4 border-t pt-3 space-y-1 text-gray-700">
             <p className="flex justify-between">
-              <span>Subtotal:</span> <span><CurrencySymbol/> {order.subtotal || 0}</span>
+              <span>Subtotal:</span>
+              <span>
+                <CurrencySymbol /> {order?.subtotal ?? 0}
+              </span>
             </p>
+
             <p className="flex justify-between">
-              <span>Tax:</span> <span><CurrencySymbol/> {order.tax || 0}</span>
+              <span>Tax:</span>
+              <span>
+                <CurrencySymbol /> {order?.tax ?? 0}
+              </span>
             </p>
+
+            <p className="flex justify-between">
+              <span>Discount:</span>
+              <span className="text-green-600">
+                - <CurrencySymbol /> {order?.discount ?? 0}
+              </span>
+            </p>
+
             <p className="flex justify-between font-semibold text-gray-800 text-lg">
-              <span>Total:</span> <span><CurrencySymbol/> {order.total_price || 0}</span>
+              <span>Total:</span>
+              <span>
+                <CurrencySymbol /> {order?.total_price ?? 0}
+              </span>
             </p>
           </div>
+
 
           {/* Print Button */}
           <button

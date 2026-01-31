@@ -57,6 +57,7 @@ const bookOrderSlice = createSlice({
     clearOrders: (state) => {
       state.orders = [];
       localStorage.removeItem("orders");
+      localStorage.removeItem("checkoutDetails");
     },
 
     updateOrderPayment: (state, action) => {

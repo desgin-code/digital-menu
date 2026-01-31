@@ -11,11 +11,11 @@ export default function ItemDetails({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-end z-50 pb-[60px]  "
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-end  pb-[60px]  " style={{ zIndex: 999999 }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-t-2xl shadow-lg w-full p-6 relative max-h-[90vh]  overflow-y-auto transition-transform transform animate-slideUp"
+        className="bg-white rounded-t-2xl shadow-lg w-full p-6 relative max-h-[90vh]  overflow-y-auto transition-transform transform animate-slideUp "
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -38,12 +38,21 @@ export default function ItemDetails({
             <div>
               <h2 className="text-2xl font-bold mb-1">{item.title}</h2>
               <p className="text-gray-600 mb-3">{item.desc}</p>
-              <p className="text-[#e68900] text-xl font-bold"> <CurrencySymbol/>  {item.price}</p>
-              {item.oldPrice && (
-                <p className="text-gray-400 text-sm line-through">
-                  <CurrencySymbol/> {item.oldPrice}
-                </p>
-              )}
+
+              <div className="flex items-center space-x-2">
+                <span className="line-through text-gray-400 text-sm font-bold">
+                  <CurrencySymbol /> {item.price}
+                </span>
+                <span className="font-bold text-[#e68900]">
+                  <CurrencySymbol /> {Math.round(item.price - (item.price * (item.discount / 100)))}
+
+                </span>
+
+              </div>
+
+
+
+
             </div>
 
             {/* Add to cart */}
@@ -114,14 +123,13 @@ export default function ItemDetails({
                           {opt.title}
                         </h4>
                         <div className="flex gap-3 items-center mt-1">
-                          <p className="text-[#e68900] font-bold">
-                             <CurrencySymbol/>  {opt.price}
-                          </p>
-                          {/* {opt.quantity && (
-                            <p className="text-gray-500 text-sm">
-                              Qty {opt.quantity}
-                            </p>
-                          )} */}
+                          <span className="line-through text-gray-400 text-sm font-bold">
+                            <CurrencySymbol /> {opt.price}
+                          </span>
+                          <span className="text-[#e68900] font-bold">
+                            <CurrencySymbol /> {Math.round(opt.price - (opt.price * (opt.discount / 100)))}
+                          </span>
+
                         </div>
                       </div>
                     </div>

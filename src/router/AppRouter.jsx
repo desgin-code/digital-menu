@@ -7,18 +7,18 @@ import Order from "../pages/Order/MyOrders";
 import OrderConfirmation from "../pages/Confirmation/OrderConfirmation";
 import Profile from "../pages/Profile/Profile";
 import OrderDetails from "../pages/Order/OrderDetails";
-import Payment from "../pages/Payement/Payment";
 import UpdateOrderPayment from "../pages/Payement/UpdateOrderPayment";
 import LandingPage from "../pages/Home/LandingPage";
 import FeedbackPage from "../pages/Feedback/FeedbackPage";
 import ThankYouPage from "../pages/Feedback/ThankYouPage";
 import ProtectedRoute from "./ProtectedRoute";
+import CheckoutDetails from "../pages/Checkout/CheckoutDetails";
 function AppRouter() {
   return (
     //basename="/kuldeep/digital-menu" in Router parent paste
-    <Router basename="/hotel/">
+    <Router basename="/kuldeep/digital-menu/">
       <Routes>
-        <Route path="/:endpoint" element={<LandingPage />} />
+        <Route path="hotel/:endpoint" element={<LandingPage />} />
 
         {/* Protected Routes */}
         <Route
@@ -69,14 +69,7 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="payment"
-          element={
-            <ProtectedRoute>
-              <Payment />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="orders"
           element={
@@ -110,7 +103,17 @@ function AppRouter() {
           }
         />
 
-       
+
+        <Route
+          path="checkout-details"
+          element={
+            <ProtectedRoute>
+              <CheckoutDetails />
+            </ProtectedRoute>
+          }
+        />
+
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

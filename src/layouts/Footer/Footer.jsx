@@ -5,10 +5,11 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   const totalItems = useSelector((state) => state.cart.totalItems);
+  const hotel = useSelector((state) => state.hotel.hotel);
   return (
     <footer className="fixed bottom-0 left-0 w-full bg-[#333] text-white flex justify-between items-center py-3 px-7 shadow-lg">
       <div className="flex flex-col items-center text-sm  hover:cursor-pointer">
-        <Link to="/menu">
+        <Link to = {`/hotel/${hotel.slug}`}>
           {" "}
           <FaHome size={22} />
         </Link>
