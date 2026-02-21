@@ -13,6 +13,7 @@ export default function CheckoutDetails() {
         seatingType: "table",
         tableNumber: "",
         roomNumber: "",
+        mealDateTime: "",
     });
 
     const [errors, setErrors] = useState({});
@@ -65,6 +66,10 @@ export default function CheckoutDetails() {
             newErrors.roomNumber = "Room number is required";
         }
 
+         if (!form.mealDateTime) {
+            newErrors.mealDateTime = "Please Schedule Your Meal";
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -78,6 +83,7 @@ export default function CheckoutDetails() {
             specialRequests: form.specialRequests,
             seatingType: form.seatingType,
             location: form.seatingType === "table" ? form.tableNumber : form.roomNumber,
+            mealDateTime : form.mealDateTime,
         };
 
         localStorage.setItem("checkoutDetails", JSON.stringify(customerDetails));
@@ -184,6 +190,28 @@ export default function CheckoutDetails() {
                                 )}
                             </div>
                         )}
+
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">
+                              Schedule Your Meal
+                            </label>
+
+                            <input
+                                type="datetime-local"
+                                name="mealDateTime"
+                                value={form.mealDateTime}
+                                onChange={handleChange}
+                               
+                                className="w-full border rounded-lg px-4 py-2 text-gray-700"
+                            />
+
+                            {errors.mealDateTime && (
+                                <p className="text-red-600 text-sm mt-1">
+                                    {errors.mealDateTime}
+                                </p>
+                            )}
+                        </div>
 
                         <div className="flex gap-4 mt-4">
                             <Link

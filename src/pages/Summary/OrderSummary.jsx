@@ -191,7 +191,7 @@ export default function OrderSummary() {
       alert("Invalid coupon code.");
     }
   };
-  
+
 
   return (
     <Layout>
@@ -222,6 +222,21 @@ export default function OrderSummary() {
                       {customerDetails.seatingType === "table" ? "Table No." : "Room No."}:
                     </p>
                     <p className="text-gray-800">{customerDetails.location}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-700">
+                      Meal Time :
+                    </p>
+                    <p>
+                      {new Date(customerDetails.mealDateTime).toLocaleString(undefined, {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </p>
                   </div>
                   {customerDetails.specialRequests && (
                     <div className="md:col-span-2">

@@ -113,10 +113,10 @@ export default function MyOrders() {
                         Payment:{" "}
                         <span
                           className={`text-xs font-semibold ${order.payment_status === "paid"
-                              ? "text-green-600"
-                              : order.payment_status === "pending"
-                                ? "text-yellow-600"
-                                : "text-red-600"
+                            ? "text-green-600"
+                            : order.payment_status === "pending"
+                              ? "text-yellow-600"
+                              : "text-red-600"
                             }`}
                         >
                           {order.payment_status
@@ -126,14 +126,21 @@ export default function MyOrders() {
                         </span>
                       </p>
                       <p className="text-sm text-gray-500">{order?.seating_type?.charAt(0).toUpperCase() +
-                            order?.seating_type?.slice(1)} No. : {order.order_location}</p>
+                        order?.seating_type?.slice(1)} No. : {order.order_location}</p>
+
+                      <p className="text-sm text-gray-500">
+                        Meal Date & Time :  {formatDate(order.meal_date_time)}
+                         
+                      </p>
+
+
                     </div>
                     <span
                       className={`px-6 py-3 rounded-full text-xs font-semibold ${order.order_status.toLowerCase() === "delivered"
-                          ? "bg-green-100 text-green-600"
-                          : order.order_status.toLowerCase() === "processing"
-                            ? "bg-yellow-100 text-yellow-600"
-                            : "bg-red-100 text-red-600"
+                        ? "bg-green-100 text-green-600"
+                        : order.order_status.toLowerCase() === "processing"
+                          ? "bg-yellow-100 text-yellow-600"
+                          : "bg-red-100 text-red-600"
                         }`}
                     >
                       {order.order_status.charAt(0).toUpperCase() +

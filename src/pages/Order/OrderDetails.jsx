@@ -69,6 +69,8 @@ export default function OrderDetails() {
               </p>
               <p ><span className="font-semibold">{order?.seating_type?.charAt(0).toUpperCase() +
                 order?.seating_type?.slice(1)} No. :</span> {order.order_location}</p>
+
+              <p ><span className="font-semibold">Meal Date & Time :</span> {formatDate(order.meal_date_time)}</p>
             </div>
             <div>
               <span
