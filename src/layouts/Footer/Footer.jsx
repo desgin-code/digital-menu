@@ -2,14 +2,18 @@ import React from "react";
 import { FaHome, FaShoppingCart, FaListAlt } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
+   const { t, i18n } = useTranslation();
   const totalItems = useSelector((state) => state.cart.totalItems);
   const hotel = useSelector((state) => state.hotel.hotel);
   return (
     <footer className="fixed bottom-0 left-0 w-full bg-[#333] text-white flex justify-between items-center py-3 px-7 shadow-lg">
+
+
       <div className="flex flex-col items-center text-sm  hover:cursor-pointer">
-        <Link to = {`/hotel/${hotel.slug}`}>
+        <Link to={`/hotel/${hotel.slug}`}>
           {" "}
           <FaHome size={22} />
         </Link>
@@ -27,6 +31,10 @@ export default function Footer() {
             )}
           </div>
         </Link>
+
+        
+
+
       </div>
 
       <div className="flex flex-col items-center text-sm  hover:cursor-pointer">
@@ -36,6 +44,15 @@ export default function Footer() {
         </Link>
         <span>Orders</span>
       </div>
+
+
+      
+
+
+
+
+     
     </footer>
+    
   );
 }

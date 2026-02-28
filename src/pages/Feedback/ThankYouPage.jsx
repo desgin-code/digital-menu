@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { FaCheckCircle } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 function ThankYouPage() {
   const navigate = useNavigate();
+   const { t, i18n } = useTranslation();
   const [message, setMessage] = useState("");
 
   const hotel = useSelector((state) => state.hotel.hotel);
@@ -83,18 +85,20 @@ function ThankYouPage() {
       </main>
 
 
-      <footer className="bg-gray-100 py-6 text-center mt-auto border-t">
-        <p className="text-gray-600 text-sm">
-          Powered by{" "}
-          <a
-            href="https://zapinfotech.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 font-semibold hover:underline"
-          >
-            Zap Infotech
-          </a>
-        </p>
+      <footer className="bg-gray-100 py-3 text-center mt-auto border-t">
+         <div className="mt-12 text-gray-500 text-sm z-10">
+            © {new Date().getFullYear()}{" "}
+            Powered by{" "}
+            <a
+              href="https://hotelsdigitalmenu.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              Hotelsdigitalmenu.com
+            </a>
+            . {t("allRightsReserved")}
+          </div>
       </footer>
     </div>
   );

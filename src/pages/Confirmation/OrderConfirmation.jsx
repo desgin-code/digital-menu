@@ -52,6 +52,22 @@ export default function OrderConfirmation() {
           >
             View Orders
           </button>
+
+           <div className="mt-2 text-gray-500 text-sm z-10">
+            © {new Date().getFullYear()}{" "}
+            Powered by{" "}
+            <a
+              href="https://hotelsdigitalmenu.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              Hotelsdigitalmenu.com
+            </a>
+             . AllRightsReserved
+          </div>
+
+
         </div>
       </div>
     </Layout>

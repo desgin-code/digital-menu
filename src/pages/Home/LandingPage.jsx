@@ -128,11 +128,15 @@ function LandingPage() {
 
           <div className="mt-12 text-gray-500 text-sm z-10">
             © {new Date().getFullYear()}{" "}
-            {hotel.hotel_name
-              .toLowerCase()
-              .split(" ")
-              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(" ")}{" "}
+            Powered by{" "}
+            <a
+              href="https://hotelsdigitalmenu.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              Hotelsdigitalmenu.com
+            </a>
             . {t("allRightsReserved")}
           </div>
         </>
