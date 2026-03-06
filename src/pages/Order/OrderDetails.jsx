@@ -136,6 +136,13 @@ export default function OrderDetails() {
               </span>
             </p>
 
+             <p className="flex justify-between">
+              <span>Convenience Fee:</span>
+              <span>
+                <CurrencySymbol /> {order?.commission_fee ?? 0}
+              </span>
+            </p>
+
             <p className="flex justify-between">
               <span>Tax:</span>
               <span>

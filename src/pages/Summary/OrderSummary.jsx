@@ -43,8 +43,21 @@ export default function OrderSummary() {
     }, 0)
   );
 
+  let convenienceFee = 0;
+
+
+  if (hotel?.commission_type === 'Flat') {
+    console.log(hotel?.commission_type
+    )
+    convenienceFee = Math.floor(hotel?.commission ?? 0);
+  }
+
+  if (hotel?.commission_type === 'Percentage') {
+    convenienceFee = Math.floor((subTotals * (hotel?.commission ?? 0)) / 100);
+  }
+
   const tax = Math.round(subTotals * 0.05);
-  const total = Math.round(subTotals + tax - discount);
+  const total = Math.round(subTotals + tax + convenienceFee - discount);
 
 
 
@@ -58,6 +71,7 @@ export default function OrderSummary() {
       items: cartItems,
       subtotal: subTotals,
       tax: tax,
+      convenienceFee: convenienceFee,
       discount,
       total: total,
       couponCode,
@@ -114,6 +128,7 @@ export default function OrderSummary() {
       items: cartItems,
       subtotal: subTotals,
       tax,
+      convenienceFee:convenienceFee,
       discount,
       total,
       couponCode,
@@ -305,6 +320,15 @@ export default function OrderSummary() {
                       <CurrencySymbol /> {subTotals}
                     </span>
                   </div>
+
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Convenience Fee :</span>
+                    <span className="font-semibold text-gray-800">
+                      <CurrencySymbol /> {convenienceFee}
+                    </span>
+                  </div>
+
+
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-700">Tax (5%):</span>
                     <span className="font-semibold text-gray-800">
