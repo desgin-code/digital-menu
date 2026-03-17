@@ -130,7 +130,7 @@ export default function MyOrders() {
 
                       <p className="text-sm text-gray-500">
                         Meal Date & Time :  {formatDate(order.meal_date_time)}
-                         
+
                       </p>
 
 
@@ -170,7 +170,7 @@ export default function MyOrders() {
                       View Details
                     </button>
                     {order.order_status.toLowerCase() === "processing" &&
-                      (order.payment_status !== "paid" && order.payment_status !== "pending") ? (
+                      ( order.payment_status !== "paid" ) ? (
                       <button
                         className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
                         onClick={() => handleCancelOrder(order.id)}
